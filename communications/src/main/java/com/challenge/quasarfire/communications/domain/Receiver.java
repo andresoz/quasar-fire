@@ -1,8 +1,10 @@
 package com.challenge.quasarfire.communications.domain;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Receiver {
-    public Receiver() {
-    }
+    public Receiver() {}
 
     //satellites coordinates{x,y}
     final float kenobi[] = {-500,-200};
@@ -20,39 +22,45 @@ public class Receiver {
     public float[] getLocation(float[] distances){
 
         //validate that distances are positive
-        for (float distance : distances){
+        for (Float distance : distances){
             if(distance <= 0.0f){
                 throw new IllegalArgumentException("The distance " + distance + " is not greater than 0");
             }
         }
 
         // 4[(x2-x1)*(y3-y1)-(y2-y1)*(x3-x1)]
-        float denominator = 4 * ((skywalker[0]-kenobi[0])*(sato[1]-kenobi[1])-(skywalker[1]-kenobi[1])*(sato[0]-kenobi[0]));
+        Float denominator = 4 * ((skywalker[0]-kenobi[0])*(sato[1]-kenobi[1])-(skywalker[1]-kenobi[1])*(sato[0]-kenobi[0]));
 
         // 2*(y3-y1)*(d1^2 - d2^2 - x1^2 + x2^2 - y1^2 + y2^2) - 2*(y2-y1)*(d1^2 - d3^2 - x1^2 + x3^2 - y1^2 + y3^2)
-        float numeratorX = (float) ( 2 * (sato[1]-kenobi[1])*(Math.pow(distances[0],2)-Math.pow(distances[1],2)
+        Float numeratorX = (float) ( 2 * (sato[1]-kenobi[1])*(Math.pow(distances[0],2)-Math.pow(distances[1],2)
                 -Math.pow(kenobi[0],2)+Math.pow(skywalker[0], 2)-Math.pow(kenobi[1],2)+Math.pow(skywalker[1],2)) -
                 2*(skywalker[1]-kenobi[1])*(Math.pow(distances[0],2)-Math.pow(distances[2],2)
                         -Math.pow(kenobi[0],2)+Math.pow(sato[0],2)
                         -Math.pow(kenobi[1],2)+Math.pow(sato[1],2)));
         
         // 2*(x2-x1)*(d1^2 - d3^2 - x1^2 + x3^2 - y1^2 + y3^2) - 2*(x3-x1)*(d1^2 - d2^2 - x1^2 + x2^2 - y1^2 + y2^2)
-        float numeratorY = (float) (2 * (skywalker[0]-kenobi[0])*(Math.pow(distances[0],2)-Math.pow(distances[2],2)
+        Float numeratorY = (float) (2 * (skywalker[0]-kenobi[0])*(Math.pow(distances[0],2)-Math.pow(distances[2],2)
                         -Math.pow(kenobi[0],2)+Math.pow(sato[0],2)-Math.pow(kenobi[1],2)+Math.pow(sato[1],2)) -
                         2 * (sato[0]-kenobi[0])*(Math.pow(distances[0],2)-Math.pow(distances[1],2)
                                 -Math.pow(kenobi[0],2)+Math.pow(skywalker[0],2)
                                 -Math.pow(kenobi[1],2)+Math.pow(skywalker[1],2)));
 
-        float result[] = {numeratorX/denominator, numeratorY/denominator};
+        float result[] = {round(numeratorX/denominator), round(numeratorY/denominator)};
 
         //check if the result is possible (if the three circles whose radius are the distances intersect each other)
-        if( (int)distances[0] == (int)Math.sqrt(Math.pow(kenobi[0]-result[0],2)+Math.pow(kenobi[1]-result[1],2)) &&
-                (int)distances[1] == (int)Math.sqrt(Math.pow(skywalker[0]-result[0],2)+Math.pow(skywalker[1]-result[1],2)) &&
-                (int)distances[2] == (int)Math.sqrt(Math.pow(sato[0]-result[0],2)+Math.pow(sato[1]-result[1],2))){
+       if( (int) distances[0] == (int)Math.sqrt(Math.pow(kenobi[0]-result[0],2)+Math.pow(kenobi[1]-result[1],2)) &&
+               (int)distances[1] == (int)Math.sqrt(Math.pow(skywalker[0]-result[0],2)+Math.pow(skywalker[1]-result[1],2)) &&
+               (int)distances[2] == (int)Math.sqrt(Math.pow(sato[0]-result[0],2)+Math.pow(sato[1]-result[1],2))){
             return result;
         }else {
             return null;
         }
+    }
+
+    public static float round(float number) {
+        int pow = 10;
+        float tmp = number * pow;
+        return ( (float) ( (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) ) ) / pow;
     }
 
     /**

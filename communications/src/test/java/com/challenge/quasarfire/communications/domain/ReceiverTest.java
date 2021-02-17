@@ -1,6 +1,10 @@
 package com.challenge.quasarfire.communications.domain;
 
+import com.challenge.quasarfire.communications.service.LocationAndMessageDTO;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,8 +22,8 @@ public class ReceiverTest {
         float distances[]={500f,570f,850f};
         float location[] = receiver.getLocation(distances);
         //check approximate location with the int values
-        assertEquals(-332, (int) location[0]);
-        assertEquals(271, (int) location[1]);
+        assertEquals(-332.6f, location[0]);
+        assertEquals(271.3f, location[1]);
     }
 
     /**
