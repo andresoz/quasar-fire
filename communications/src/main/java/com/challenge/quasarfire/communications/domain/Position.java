@@ -1,5 +1,8 @@
 package com.challenge.quasarfire.communications.domain;
 
+/**
+ * @author Andres Ortiz andresortiz248@gmail.com
+ * */
 public class Position {
     public Position(float x, float y) {
         this.x = x;

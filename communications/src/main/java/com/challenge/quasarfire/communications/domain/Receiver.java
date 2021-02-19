@@ -2,14 +2,47 @@ package com.challenge.quasarfire.communications.domain;
 
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Andres Ortiz andresortiz248@gmail.com
+ * */
 @Component
 public class Receiver {
     public Receiver() {}
 
     //satellites coordinates{x,y}
-    final float kenobi[] = {-500,-200};
-    final float skywalker[] = {100,-100};
-    final float sato[] = {500,100};
+    final Position kenobi = new Position(-500,-200);
+    final Position skywalker = new Position(100,-100);
+    final Position sato = new Position(500,100);
+
+    /**
+     * Receive the name of a satellite and return its position.
+     * @param satelliteName - a string with the satellite name not {@code null}.
+     * @return result - the position of the satellite.
+     * @throws NullPointerException if satelliteName is null.
+     */
+    public Position getSatellitePosition(String satelliteName){
+        switch (satelliteName){
+            case "kenobi": return kenobi;
+            case "skywalker": return skywalker;
+            case "sato": return sato;
+            default: return null;
+        }
+    }
+
+    /**
+     * Receive an array of strings with some null values and return a string with  the message received
+     * @param message - a string array containing the message receive by a satellite not {@code null}.
+     * @return result - a string with the message receive.
+     * @throws NullPointerException if message is null.
+     */
+    public String getSatelliteMessage(String[] message){
+        String result = "";
+        for(String word : message){
+            if(word != "")
+            result += word + " ";
+        }
+        return result.strip();
+    }
 
     /**
      * Receive an array of floats containing the distances from the satellites to the source of the message,
@@ -22,42 +55,47 @@ public class Receiver {
     public float[] getLocation(float[] distances){
 
         //validate that distances are positive
-        for (Float distance : distances){
+        for (float distance : distances){
             if(distance <= 0.0f){
                 throw new IllegalArgumentException("The distance " + distance + " is not greater than 0");
             }
         }
 
         // 4[(x2-x1)*(y3-y1)-(y2-y1)*(x3-x1)]
-        Float denominator = 4 * ((skywalker[0]-kenobi[0])*(sato[1]-kenobi[1])-(skywalker[1]-kenobi[1])*(sato[0]-kenobi[0]));
+        float denominator = 4 * ((skywalker.getX()-kenobi.getX())*(sato.getY()-kenobi.getY())-(skywalker.getY()-kenobi.getY())*(sato.getX()-kenobi.getX()));
 
         // 2*(y3-y1)*(d1^2 - d2^2 - x1^2 + x2^2 - y1^2 + y2^2) - 2*(y2-y1)*(d1^2 - d3^2 - x1^2 + x3^2 - y1^2 + y3^2)
-        Float numeratorX = (float) ( 2 * (sato[1]-kenobi[1])*(Math.pow(distances[0],2)-Math.pow(distances[1],2)
-                -Math.pow(kenobi[0],2)+Math.pow(skywalker[0], 2)-Math.pow(kenobi[1],2)+Math.pow(skywalker[1],2)) -
-                2*(skywalker[1]-kenobi[1])*(Math.pow(distances[0],2)-Math.pow(distances[2],2)
-                        -Math.pow(kenobi[0],2)+Math.pow(sato[0],2)
-                        -Math.pow(kenobi[1],2)+Math.pow(sato[1],2)));
+        float numeratorX = (float) ( 2 * (sato.getY()-kenobi.getY())*(Math.pow(distances[0],2)-Math.pow(distances[1],2)
+                -Math.pow(kenobi.getX(),2)+Math.pow(skywalker.getX(), 2)-Math.pow(kenobi.getY(),2)+Math.pow(skywalker.getY(),2)) -
+                2*(skywalker.getY()-kenobi.getY())*(Math.pow(distances[0],2)-Math.pow(distances[2],2)
+                        -Math.pow(kenobi.getX(),2)+Math.pow(sato.getX(),2)
+                        -Math.pow(kenobi.getY(),2)+Math.pow(sato.getY(),2)));
         
         // 2*(x2-x1)*(d1^2 - d3^2 - x1^2 + x3^2 - y1^2 + y3^2) - 2*(x3-x1)*(d1^2 - d2^2 - x1^2 + x2^2 - y1^2 + y2^2)
-        Float numeratorY = (float) (2 * (skywalker[0]-kenobi[0])*(Math.pow(distances[0],2)-Math.pow(distances[2],2)
-                        -Math.pow(kenobi[0],2)+Math.pow(sato[0],2)-Math.pow(kenobi[1],2)+Math.pow(sato[1],2)) -
-                        2 * (sato[0]-kenobi[0])*(Math.pow(distances[0],2)-Math.pow(distances[1],2)
-                                -Math.pow(kenobi[0],2)+Math.pow(skywalker[0],2)
-                                -Math.pow(kenobi[1],2)+Math.pow(skywalker[1],2)));
+        float numeratorY = (float) (2 * (skywalker.getX()-kenobi.getX())*(Math.pow(distances[0],2)-Math.pow(distances[2],2)
+                        -Math.pow(kenobi.getX(),2)+Math.pow(sato.getX(),2)-Math.pow(kenobi.getY(),2)+Math.pow(sato.getY(),2)) -
+                        2 * (sato.getX()-kenobi.getX())*(Math.pow(distances[0],2)-Math.pow(distances[1],2)
+                                -Math.pow(kenobi.getX(),2)+Math.pow(skywalker.getX(),2)
+                                -Math.pow(kenobi.getY(),2)+Math.pow(skywalker.getY(),2)));
 
         float result[] = {round(numeratorX/denominator), round(numeratorY/denominator)};
 
         //check if the result is possible (if the three circles whose radius are the distances intersect each other)
-       if( (int) distances[0] == (int)Math.sqrt(Math.pow(kenobi[0]-result[0],2)+Math.pow(kenobi[1]-result[1],2)) &&
-               (int)distances[1] == (int)Math.sqrt(Math.pow(skywalker[0]-result[0],2)+Math.pow(skywalker[1]-result[1],2)) &&
-               (int)distances[2] == (int)Math.sqrt(Math.pow(sato[0]-result[0],2)+Math.pow(sato[1]-result[1],2))){
+       if( (int) distances[0] == (int)Math.sqrt(Math.pow(kenobi.getX()-result[0],2)+Math.pow(kenobi.getY()-result[1],2)) &&
+               (int)distances[1] == (int)Math.sqrt(Math.pow(skywalker.getX()-result[0],2)+Math.pow(skywalker.getY()-result[1],2)) &&
+               (int)distances[2] == (int)Math.sqrt(Math.pow(sato.getX()-result[0],2)+Math.pow(sato.getY()-result[1],2))){
             return result;
         }else {
             return null;
         }
     }
 
-    public static float round(float number) {
+    /**
+     * Receive a flout and round it with one decimal precision.
+     * @param number - number to be rounded
+     * @return result - a flout with one decimal precision.
+     */
+    private static float round(float number) {
         int pow = 10;
         float tmp = number * pow;
         return ( (float) ( (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) ) ) / pow;

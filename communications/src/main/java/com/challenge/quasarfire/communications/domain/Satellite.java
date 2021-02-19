@@ -1,5 +1,8 @@
 package com.challenge.quasarfire.communications.domain;
 
+/**
+ * @author Andres Ortiz andresortiz248@gmail.com
+ * */
 public class Satellite {
     private String name;
     private float distance;

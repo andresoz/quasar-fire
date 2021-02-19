@@ -1,13 +1,11 @@
 package com.challenge.quasarfire.communications.domain;
 
-import com.challenge.quasarfire.communications.service.LocationAndMessageDTO;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Andres Ortiz andresortiz248@gmail.com
+ * */
 public class ReceiverTest {
 
     /**
@@ -83,5 +81,43 @@ public class ReceiverTest {
         for (int i=0; i<messagesWithoutOffset[0].length;i++){
             assertEquals(messagesWithoutOffset[0][i], messagesWithoutOffset[1][i]);
         }
+    }
+
+    /**
+     * Test to get the message received by a satellite.
+     *
+     * @result the partial message should be returned.
+     */
+    @Test
+    public void testGetSatelliteMessage(){
+        Receiver receiver = new Receiver();
+        //test message
+        String[] message = new String[]{"", "this", "", "a", "message"};
+        String partialMessage = receiver.getSatelliteMessage(message);
+        assertEquals(new String("this a message"), partialMessage);
+    }
+
+    /**
+     * Test to get the location of a satellite.
+     *
+     * @result the satellite location should be returned.
+     */
+    @Test
+    public void testGetSatellitePosition(){
+        Receiver receiver = new Receiver();
+        Position position = receiver.getSatellitePosition("kenobi");
+        assertEquals(-500.0f, position.getX());
+        assertEquals(-200.0f, position.getY());
+    }
+
+    /**
+     * Test to get the location of a satellite when the name is wrong.
+     *
+     * @result null should be returned.
+     */
+    @Test
+    public void testGetSatellitePositionNotFound(){
+        Receiver receiver = new Receiver();
+        assertNull(receiver.getSatellitePosition("solo"));
     }
 }
