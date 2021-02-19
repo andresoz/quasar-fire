@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quasar-fire-deployment
+  labels:
+    app: quasar-fire
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quasar-fire
+  template:
+    metadata:
+      labels:
+        app: quasar-fire
+    spec:
+      containers:
+        - name: quasar-fire
+          image: andresoz/quasar-fire:communications
+          ports:
+            - containerPort: 8080
